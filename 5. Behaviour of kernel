@@ -1,0 +1,25 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void print_memory_info() {
+    FILE *meminfoFile = fopen("/proc/meminfo", "r");
+    if (meminfoFile == NULL) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[100];
+    printf("\nMemory Information:\n");
+    while (fgets(line, sizeof(line), meminfoFile)) {
+        printf("  %s", line);
+    }
+
+    // Close the file
+    fclose(meminfoFile);
+}
+
+int main() {
+    print_memory_info();
+
+    return 0;
+}
