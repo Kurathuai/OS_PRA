@@ -1,0 +1,33 @@
+#include <stdio.h>
+#include <sys/utsname.h>
+#include <stdlib.h>
+
+int main() {
+    // Use uname system call to get kernel information
+    struct utsname unameData;
+    if (uname(&unameData) == -1) {
+        perror("uname");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("Linux Kernel Information:\n");
+    printf("  Kernel Version: %s\n", unameData.release);
+
+    // Read CPU information from /proc/cpuinfo
+    FILE *cpuInfoFile = fopen("/proc/cpuinfo", "r");
+    if (cpuInfoFile == NULL) {
+        perror("fopen");
+        exit(EXIT_FAILURE);
+    }
+
+    char line[100];
+    printf("\nCPU Information:\n");
+    while (fgets(line, sizeof(line), cpuInfoFile)) {
+        printf("  %s", line);
+    }
+
+    // Close the file
+    fclose(cpuInfoFile);
+
+    return 0;
+}
