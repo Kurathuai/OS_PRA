@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+
+int main() {
+    // Scenario i: Same program, same code
+    pid_t child_pid1 = fork();
+
+    if (child_pid1 == -1) {
+        // Error handling
+        perror("fork");
+        return 1;
+    }
+
+    if (child_pid1 == 0) {
+        // Child process
+        printf("Child process 1 (PID: %d) executing same program, same code\n", getpid());
+        // Replace current process image with a new one
+        execlp("./same_program", "./same_program", NULL);
+    } else {
+        // Parent process
+        printf("Parent process (PID: %d) waiting for child 1 to finish...\n", getpid());
+        // Wait for the child to finish
+        wait(NULL);
+        printf("Child 1 finished, parent continuing...\n");
+    }
+
+    // Scenario ii: Same program, different code
+    pid_t child_pid2 = fork();
+
+    if (child_pid2 == -1) {
+        // Error handling
+        perror("fork");
+        return 1;
+    }
+
+    if (child_pid2 == 0) {
+        // Child process
+        printf("Child process 2 (PID: %d) executing same program, different code\n", getpid());
+        // Replace current process image with a new one
+        execlp("./different_program", "./different_program", NULL);
+    } else {
+        // Parent process
+        printf("Parent process (PID: %d) waiting for child 2 to finish...\n", getpid());
+        // Wait for the child to finish
+        wait(NULL);
+        printf("Child 2 finished, parent continuing...\n");
+    }
+
+    return 0;
+}
