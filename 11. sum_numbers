@@ -1,0 +1,75 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+
+// Structure to hold thread arguments
+struct ThreadArgs {
+    int *numbers;
+    int start;
+    int end;
+};
+
+// Function to compute the sum of a sublist
+void *sumThread(void *arg) {
+    struct ThreadArgs *args = (struct ThreadArgs *)arg;
+
+    int partialSum = 0;
+    for (int i = args->start; i < args->end; i++) {
+        partialSum += args->numbers[i];
+    }
+
+    // Allocate memory for the result and store the partial sum
+    int *result = (int *)malloc(sizeof(int));
+    *result = partialSum;
+
+    // Return the result
+    pthread_exit(result);
+}
+
+int main() {
+    int n;
+
+    // Input the number of elements
+    printf("Enter the number of elements: ");
+    scanf("%d", &n);
+
+    int *numbers = (int *)malloc(n * sizeof(int));
+
+    // Input the list of numbers
+    printf("Enter the list of %d numbers:\n", n);
+    for (int i = 0; i < n; i++) {
+        scanf("%d", &numbers[i]);
+    }
+
+    // Divide the list into two equal parts
+    int mid = n / 2;
+
+    // Create thread arguments for the two sublists
+    struct ThreadArgs args1 = {numbers, 0, mid};
+    struct ThreadArgs args2 = {numbers, mid, n};
+
+    // Declare thread IDs
+    pthread_t thread1, thread2;
+
+    // Create two threads to compute the sum of the sublists
+    pthread_create(&thread1, NULL, sumThread, &args1);
+    pthread_create(&thread2, NULL, sumThread, &args2);
+
+    // Join the threads and get the partial sums
+    int *result1, *result2;
+    pthread_join(thread1, (void **)&result1);
+    pthread_join(thread2, (void **)&result2);
+
+    // Compute the final sum
+    int finalSum = *result1 + *result2;
+
+    // Display the final result
+    printf("Sum of the numbers: %d\n", finalSum);
+
+    // Free allocated memory
+    free(numbers);
+    free(result1);
+    free(result2);
+
+    return 0;
+}
